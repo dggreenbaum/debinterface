@@ -11,6 +11,7 @@ IFACE = Templeate('iface $name $inet $source\n')
 CMD = Template('\t$varient $value\n')
 
 addressFeilds = ['address', 'network', 'netmask', 'broadcast', 'gateway']
+prepFeilds =['pre-up', 'up', 'down', 'post-down']
 
 def writeInterfaces(adapters):
 	# Back up the old interfaces file.
@@ -50,3 +51,13 @@ def writeInterfaces(adapters):
 			# Keep going if a feild isn't provided.
 			except Keyerror:
 				pass
+		
+		# Write the up, down, pre-up, and post-down clauses.
+		for feild in prepFeilds:
+			for item in ifAttributes[feild]
+				try:
+                                	d = dict(varient=feild, value=item)
+                                	interfaces.write(CMD.substitute(d))
+                        	# Keep going if a feild isn't provided.
+                        	except Keyerror:
+                                	pass
