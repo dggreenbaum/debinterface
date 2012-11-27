@@ -7,7 +7,7 @@ Parsing the interfaces file works pretty well at this stage.
 Writing to the file is not quite complete yet and untested.
 
 
-Example useage:
+## Example useage:
 
     import debinterface
     
