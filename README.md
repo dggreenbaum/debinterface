@@ -19,4 +19,4 @@ Example useage:
 
     # You can print the name of each adapter as follows:
     for adapter in adapters:
-	print(adapter.export()['name'])
+    	print(adapter.export()['name'])
