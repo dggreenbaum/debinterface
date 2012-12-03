@@ -69,5 +69,5 @@ def writeInterfaces(adapters):
                                 	d = dict(varient=field, value=item)
                                 	interfaces.write(CMD.substitute(d))
                         	# Keep going if a field isn't provided.
-                        	except Keyerror:
+                        	except KeyError:
                                 	pass
