@@ -4,12 +4,13 @@
 # Allows the settings stored within to be used in other Python modules.
 
 from adapter import networkAdapter
+import constants
 
 # Read /etc/network/interfaces.
 # Return an array of networkAdapter instances.
 def parseInterfaces():
 	# Open up the interfaces file. Read only.
-	interfaces = open("/etc/network/interfaces.test", "r")
+	interfaces = open(constants.INTERFACES, "r")
 	
 	# Initialize a place to store created networkAdapter objects.
 	adapters = []
@@ -97,6 +98,9 @@ def parseInterfaces():
 		
 	return adapters
 # TESTING
-#adapters = parseInterfaces()
+adapters = parseInterfaces()
 #for adapter in adapters:
 #	adapter.display()
+
+#import write
+#write.writeInterfaces(adapters)

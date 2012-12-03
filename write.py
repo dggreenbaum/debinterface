@@ -7,19 +7,22 @@ from string import Template
 
 AUTO = Template('auto $name\n')
 HOTPLUG = Template('allow-hotplug $name\n')
-IFACE = Templeate('iface $name $inet $source\n')
+IFACE = Template('iface $name $inet $source\n')
 CMD = Template('\t$varient $value\n')
 
-addressFeilds = ['address', 'network', 'netmask', 'broadcast', 'gateway']
-prepFeilds =['pre-up', 'up', 'down', 'post-down']
+addressFields = ['address', 'network', 'netmask', 'broadcast', 'gateway']
+prepFields =['pre-up', 'up', 'down', 'post-down']
+
+# Get constants.
+import constants
 
 def writeInterfaces(adapters):
 	# Back up the old interfaces file.
 	import subprocess
-	subprocess.call(["mv", "/etc/network/interfaces", "/etc/network/interfaces.old"])
+	subprocess.call(["mv", constants.INTERFACES, constants.BACKUP])
 	
 	# Prepare to write the new interfaces file.
-	interfaces = open("/etc/network/interfaces", "a")
+	interfaces = open(constants.INTERFACES, "a")
 	
 	# Loop through the provided networkAdaprers and write the new file.
 	for adapter in adapters:
@@ -27,16 +30,23 @@ def writeInterfaces(adapters):
 		ifAttributes = adapter.export()
 		
 		# Write auto and allow-hotplug clauses if applicable.		
-		if adapter.ifAttributes['auto'] == True:
-			d = dict(name=ifAttributes['name'])
-			interfaces.write(AUTO.substitute(d))
-                if ifAttributes['hotplug'] == True:
-                        d = dict(name=adapter.ifAttributes['name'])
-                        interfaces.write(HOTPLUG.substitute(d))
+		try:
+			if adapter.ifAttributes['auto'] == True:
+				d = dict(name=ifAttributes['name'])
+				interfaces.write(AUTO.substitute(d))
+                except KeyError:
+			pass
+		
+		try:
+			if ifAttributes['hotplug'] == True:
+                        	d = dict(name=adapter.ifAttributes['name'])
+                        	interfaces.write(HOTPLUG.substitute(d))
+		except KeyError:
+			pass
 		
 		# Construct and write the iface declaration.
 		# The inet clause needs a little more processing.
-		if ifAttribute['inet'] == True:
+		if ifAttributes['inet'] == True:
 			inet_val = 'inet'
 		else:
 			inet_val = ''
@@ -44,20 +54,20 @@ def writeInterfaces(adapters):
 		interfaces.write(IFACE.substitute(d))
 		
 		# Write the addressing information.
-		for feild in addressFeilds:
+		for field in addressFields:
 			try:
-				d = dict(varient=feild, value=ifAttributes[feild])
+				d = dict(varient=field, value=ifAttributes[field])
 				interfaces.write(CMD.substitute(d))
-			# Keep going if a feild isn't provided.
-			except Keyerror:
+			# Keep going if a field isn't provided.
+			except KeyError:
 				pass
 		
 		# Write the up, down, pre-up, and post-down clauses.
-		for feild in prepFeilds:
-			for item in ifAttributes[feild]
+		for field in prepFields:
+			for item in ifAttributes[field]:
 				try:
-                                	d = dict(varient=feild, value=item)
+                                	d = dict(varient=field, value=item)
                                 	interfaces.write(CMD.substitute(d))
-                        	# Keep going if a feild isn't provided.
+                        	# Keep going if a field isn't provided.
                         	except Keyerror:
                                 	pass
