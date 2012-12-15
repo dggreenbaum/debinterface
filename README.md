@@ -2,9 +2,10 @@
 
 This is a simple Python library for dealing with the /etc/network/interfaces file in most Debian based distributions.
 
-## Status: 
-Parsing the interfaces file works pretty well at this stage.
-Writing to the file is working and needs to be integrated into the interfaces class.
+## Changelog: 
+1.0 - Dec 15 2012
+	Read, writing, and editing supported.
+	Specify file locations in constants.py
 
 
 ## Example useage:
@@ -21,3 +22,10 @@ Writing to the file is working and needs to be integrated into the interfaces cl
     for adapter in adapters:
     	item = adapter.export()
     	print(item['name'])
+    
+    # Write your new interfaces file as follows:
+    # Any changes made with setter methods will be reflected with the new write.
+    adapters.writeInterfaces()
+
+    # A backup of your old interfaces file will be generated at the location
+    # specified in constants.py (Default '/etc/network/interfaces.old')

@@ -127,7 +127,7 @@ class networkAdapter:
 		print('============')
 
         # Set up the network adapter.
-	def __init__(self, n=None, options=None):
+	def __init__(self, options=None):
                 # Initialize attribute storage structre.
                 self.ifAttributes = {}
                 self.ifAttributes['bridge-opts'] = {}
@@ -137,13 +137,15 @@ class networkAdapter:
                 self.ifAttributes['post-down'] = []
 
                 # Set the name of the interface.
-                if isinstance(n, str):
-			self.setName(n)
+                if isinstance(options, str):
+			self.setName(options)
 
                 # If a dictionary of options is provided, populate the adapter options.
-                elif options != None:
+                elif isinstance(options, dict):
                         for key in options.keys():
-                                if key == 'inet':
+                                if key == 'name':
+					self.setName(options[key])
+				if key == 'inet':
                                         self.setInet(options[key])
                                 elif key == 'source':
                                         self.setAddressSource(options[key])

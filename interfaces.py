@@ -101,6 +101,7 @@ class interfaces:
 
 	# Insert a networkAdapter before the given index or at the end of the list.
 	def addAdapter(self, options, index=None):
+		from adapter import *
 		if index != None:
 			self.adapters.insert(index, networkAdapter(options))
 		else:
@@ -109,7 +110,82 @@ class interfaces:
 	# Remove the adapter at the given index.
 	def removeAdapter(self, index):
 		self.adapters.pop(index)
+	
+	def writeInterfaces(self):
+		import constants
 
+	        # Back up the old interfaces file.
+	        import subprocess
+	        subprocess.call(["mv", constants.INTERFACES, constants.BACKUP])
+	
+	        # Prepare to write the new interfaces file.
+	        interfaces = open(constants.INTERFACES, "a")
+	
+	        # Loop through the provided networkAdaprers and write the new file.
+	        for adapter in self.adapters:
+	                # Get dict of details about the adapter.
+	                ifAttributes = adapter.export()
+	
+	                # Write auto and allow-hotplug clauses if applicable.
+	                try:
+	                        if adapter.ifAttributes['auto'] == True:
+	                                d = dict(name=ifAttributes['name'])
+	                                interfaces.write(self.AUTO.substitute(d))
+	                except KeyError:
+	                        pass
+	
+	                try:
+	                        if ifAttributes['hotplug'] == True:
+	                                d = dict(name=adapter.ifAttributes['name'])
+	                                interfaces.write(self.HOTPLUG.substitute(d))
+	                except KeyError:
+	                        pass
+	
+	                # Construct and write the iface declaration.
+	                # The inet clause needs a little more processing.
+	                if ifAttributes['inet'] == True:
+	                        inet_val = 'inet'
+	                else:
+	                        inet_val = ''
+	                
+			# Write the source clause.
+			# Will not error if omitted. Maybe not the best plan.
+			try:
+				d = dict(name=ifAttributes['name'], inet=inet_val, source=ifAttributes['source'])
+	                	interfaces.write(self.IFACE.substitute(d))
+			except KeyError:
+				pass
+
+	                # Write the addressing information.
+	                for field in self.addressFields:
+	                        try:
+	                                d = dict(varient=field, value=ifAttributes[field])
+	                                interfaces.write(self.CMD.substitute(d))
+	                        # Keep going if a field isn't provided.
+	                        except KeyError:
+	                                pass
+	
+	                # Write the up, down, pre-up, and post-down clauses.
+	                for field in self.prepFields:
+	                        for item in ifAttributes[field]:
+	                                try:
+	                                        d = dict(varient=field, value=item)
+	                                        interfaces.write(self.CMD.substitute(d))
+	                                # Keep going if a field isn't provided.
+	                                except KeyError:
+	                                        pass
+	
 	# Set up the interfaces object.
 	def __init__(self):
 		self.adapters = self.parseInterfaces()
+		
+		# Define templetes for blocks used in /etc/network/interfaces.
+		from string import Template
+
+		self.AUTO = Template('auto $name\n')
+		self.HOTPLUG = Template('allow-hotplug $name\n')
+		self.IFACE = Template('iface $name $inet $source\n')
+		self.CMD = Template('\t$varient $value\n')
+
+		self.addressFields = ['address', 'network', 'netmask', 'broadcast', 'gateway']
+		self.prepFields =['pre-up', 'up', 'down', 'post-down']
