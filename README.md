@@ -4,7 +4,9 @@ This is a simple Python library for dealing with the /etc/network/interfaces fil
 
 ## Changelog: 
 1.0 - Dec 15 2012
+
 	Read, writing, and editing supported.
+	
 	Specify file locations in constants.py
 
 
@@ -12,7 +14,7 @@ This is a simple Python library for dealing with the /etc/network/interfaces fil
 
     import debinterface
     
-    # Get a collectionf of objects representing the network adapters.
+    # Get a collection of objects representing the network adapters.
     adapters = debinterface.interfaces()
 
     # You get a list you can iterare over.
