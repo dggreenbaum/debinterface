@@ -2,7 +2,7 @@
 
 # A representation a network adapter.
 class networkAdapter:
-     	#Validate an IP Address
+   	#Validate an IP Address
 	# Will return 0 on fail, 1 on success.
 	# Works for subnet masks too.
 	def validateIP(self, ip):
