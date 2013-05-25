@@ -15,15 +15,15 @@ class networkAdapter:
 
 	# Set the inet option of an interface.
 	def setName(self, n):
-			self.ifAttributes['name'] = n
+		self.ifAttributes['name'] = n
 
 	# Set the inet option of an interface.
 	def setInet(self, i):
-			self.ifAttributes['inet'] = i
+		self.ifAttributes['inet'] = i
 
 	# Set the address source for an interface.
 	def setAddressSource(self, s):
-			self.ifAttributes['source'] = s
+		self.ifAttributes['source'] = s
 
 	# Set the ipaddress of an interface.
 	def setAddress(self, a):

@@ -2,12 +2,15 @@
 
 # A class representing the contents of /etc/network/interfaces
 
+from . import constants
+
+from .adapter import *
+
 class interfaces:
 	# Read /etc/network/interfaces.
 	# Return an array of networkAdapter instances.
 	def parseInterfaces(self):
-		from adapter import networkAdapter
-		import constants
+		from .adapter import networkAdapter
 
 		# Open up the interfaces file. Read only.
 		interfaces = open(constants.INTERFACES, "r")
@@ -100,7 +103,6 @@ class interfaces:
 
 	# Insert a networkAdapter before the given index or at the end of the list.
 	def addAdapter(self, options, index=None):
-		from adapter import *
 
 		if index != None:
 			self.adapters.insert(index, networkAdapter(options))
@@ -112,7 +114,6 @@ class interfaces:
 		self.adapters.pop(index)
 
 	def writeInterfaces(self):
-		import constants
 
 		# Back up the old interfaces file.
 		import subprocess
