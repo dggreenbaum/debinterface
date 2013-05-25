@@ -74,8 +74,11 @@ class networkAdapter:
 	def setBropts(self, opts):
 		self.ifAttributes['bridge-opts'] = opts
 
+	def replaceBropt(self, key, value):
+		self.ifAttributes['bridge-opts'][key] = value
+
 	def appendBropts(self, key, value):
-				self.ifAttributes['bridge-opts'][key] = value
+		self.ifAttributes['bridge-opts'][key] = self.ifAttributes['bridge-opts'][key] + value
 
 	# Set and add to the up commands for an interface.
 	# Takes a LIST of shell commands.

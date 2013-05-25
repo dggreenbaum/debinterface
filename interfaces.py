@@ -61,7 +61,9 @@ class interfaces:
 							adapters[context].setNetwork(sline[1])
 						if sline[0].startswith('bridge') == True:
 							opt = sline[0].split('_')
-							adapters[context].appendBropts(opt[1], sline[1])
+							sline.pop(0)
+							ifs = " ".join(sline)
+							adapters[context].replaceBropt(opt[1], ifs)
 						if sline[0] == 'up' or sline[0] == 'down' or sline[0] == 'pre-up' or sline[0] == 'post-down':
 							ud = sline.pop(0)
 							cmd = ' '.join(sline)
@@ -167,6 +169,15 @@ class interfaces:
 				except KeyError:
 					pass
 
+			# Write the bridge information.
+			for field in self.bridgeFields:
+				try:
+					d = dict(varient="bridge_" + field, value=ifAttributes['bridge-opts'][field])
+					interfaces.write(self.CMD.substitute(d))
+				# Keep going if a field isn't provided.
+				except KeyError:
+					pass
+
 			# Write the up, down, pre-up, and post-down clauses.
 			for field in self.prepFields:
 				for item in ifAttributes[field]:
@@ -191,3 +202,4 @@ class interfaces:
 
 		self.addressFields = ['address', 'network', 'netmask', 'broadcast', 'gateway']
 		self.prepFields = ['pre-up', 'up', 'down', 'post-down']
+		self.bridgeFields = ['ports', 'fd', 'hello', 'maxage', 'stp']
