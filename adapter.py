@@ -165,7 +165,7 @@ class networkAdapter:
 				elif key == 'auto':
 					self.setAuto(options[key])
 				elif key == 'allow-hotplug':
-					self.setAuto(options[key])
+					self.setHotplug(options[key])
 				elif key == 'bridgeOpts':
 					self.setBropts(options[key])
 				elif key == 'up':
