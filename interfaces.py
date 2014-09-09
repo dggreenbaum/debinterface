@@ -7,7 +7,7 @@ from interfacesReader import InterfacesReader
 from adapter import NetworkAdapter
 
 
-class interfaces:
+class Interfaces:
 
     # Set up the interfaces object.
     def __init__(self):

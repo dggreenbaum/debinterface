@@ -36,14 +36,14 @@ class InterfacesWriter:
                 # Get dict of details about the adapter.
                 ifAttributes = adapter.export()
 
-                self._write_auto(interfaces, ifAttributes)
-                self._write_hotplug(interfaces, ifAttributes)
-                self._write_inet(interfaces, ifAttributes)
-                self._write_addressing(interfaces, ifAttributes)
-                self._write_bridge(interfaces, ifAttributes)
-                self._write_callbacks(interfaces, ifAttributes)
+                self._write_auto(interfaces, adapter, ifAttributes)
+                self._write_hotplug(interfaces, adapter, ifAttributes)
+                self._write_inet(interfaces, adapter, ifAttributes)
+                self._write_addressing(interfaces, adapter, ifAttributes)
+                self._write_bridge(interfaces, adapter, ifAttributes)
+                self._write_callbacks(interfaces, adapter, ifAttributes)
 
-    def _write_auto(self, interfaces, ifAttributes):
+    def _write_auto(self, interfaces, adapter, ifAttributes):
         ''' Write if applicable '''
         try:
             if adapter.ifAttributes['auto'] is True:
@@ -52,7 +52,7 @@ class InterfacesWriter:
         except KeyError:
             pass
 
-    def _write_hotplug(self, interfaces, ifAttributes):
+    def _write_hotplug(self, interfaces, adapter, ifAttributes):
         ''' Write if applicable '''
         try:
             if ifAttributes['hotplug'] is True:
@@ -61,7 +61,7 @@ class InterfacesWriter:
         except KeyError:
             pass
 
-    def _write_inet(self, interfaces, ifAttributes):
+    def _write_inet(self, interfaces, adapter, ifAttributes):
         # Construct and write the iface declaration.
         # The inet clause needs a little more processing.
         if ifAttributes['inet'] is True:
@@ -77,7 +77,7 @@ class InterfacesWriter:
         except KeyError:
             pass
 
-    def _write_addressing(self, interfaces, ifAttributes):
+    def _write_addressing(self, interfaces, adapter, ifAttributes):
         for field in self.addressFields:
             try:
                 d = dict(varient=field, value=ifAttributes[field])
@@ -86,7 +86,7 @@ class InterfacesWriter:
             except KeyError:
                 pass
 
-    def _write_bridge(self, interfaces, ifAttributes):
+    def _write_bridge(self, interfaces, adapter, ifAttributes):
         # Write the bridge information.
         for field in self.bridgeFields:
             try:
@@ -96,7 +96,7 @@ class InterfacesWriter:
             except KeyError:
                 pass
 
-    def _write_callbacks(self, interfaces, ifAttributes):
+    def _write_callbacks(self, interfaces, adapter, ifAttributes):
         # Write the up, down, pre-up, and post-down clauses.
         for field in self.prepFields:
             for item in ifAttributes[field]:

@@ -53,7 +53,8 @@ class InterfacesReader:
                         pass
                     else:
                         self._parse_details(line)
-                    self._read_flags()
+                    self._read_auto()
+                    self._read_hotplug()
 
     def _parse_iface(self, line):
         # Parse the iface clause
@@ -97,7 +98,7 @@ class InterfacesReader:
                 if ud == 'post-down':
                     self._adapters[self._context].appendPostDown(cmd)
 
-    def _read_flags(self):
+    def _read_auto(self, line):
         # Identify which adapters are flagged with auto and allow-hotplug.
         if line.startswith('auto'):
             sline = line.split()
@@ -106,6 +107,8 @@ class InterfacesReader:
                     pass
                 else:
                     self._auto_list.append(word)
+
+    def _read_hotplug(self, line):
         if line.startswith('allow-hotplug'):
             sline = line.split()
             for word in sline:
