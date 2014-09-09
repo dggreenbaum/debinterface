@@ -47,14 +47,14 @@ class InterfacesReader:
                 if line.startswith('#') is True:
                     pass
                 else:
-                    self._parse_iface()
+                    self._parse_iface(line)
                     # Ignore blank lines.
                     if line.isspace() is True:
                         pass
                     else:
                         self._parse_details(line)
-                    self._read_auto()
-                    self._read_hotplug()
+                    self._read_auto(line)
+                    self._read_hotplug(line)
 
     def _parse_iface(self, line):
         # Parse the iface clause
