@@ -1,7 +1,8 @@
 #! /usr/bin/python
 
+
 # A representation a network adapter.
-class networkAdapter:
+class NetworkAdapter:
     #Validate an IP Address
     # Will return 0 on fail, 1 on success.
     # Works for subnet masks too.
@@ -84,29 +85,33 @@ class networkAdapter:
     # Takes a LIST of shell commands.
     def setUp(self, up):
         self.ifAttributes['up'] = up
+
     def appendUp(self, cmd):
         self.ifAttributes['up'].append(cmd)
 
     # Set and add to the down commands for an interface.
     # Takes a LIST of shell commands.
     def setDown(self, down):
-            self.ifAttributes['down'] = down
+        self.ifAttributes['down'] = down
+
     def appendDown(self, cmd):
-            self.ifAttributes['down'].append(cmd)
+        self.ifAttributes['down'].append(cmd)
 
     # Set and add to the pre-up commands for an interface.
     # Takes a LIST of shell commands.
     def setPreUp(self, pre):
-            self.ifAttributes['pre-up'] = pre
+        self.ifAttributes['pre-up'] = pre
+
     def appendPreUp(self, cmd):
-            self.ifAttributes['pre-up'].append(cmd)
+        self.ifAttributes['pre-up'].append(cmd)
 
     # Set and add to the post-down commands for an interface.
     # Takes a LIST of shell commands.
     def setPostDown(self, post):
-            self.ifAttributes['post-down'] = post
+        self.ifAttributes['post-down'] = post
+
     def appendPostDown(self, cmd):
-            self.ifAttributes['post-down'].append(cmd)
+        self.ifAttributes['post-down'].append(cmd)
 
     # Return the ifAttributes data structure.
     def export(self):
@@ -126,7 +131,7 @@ class networkAdapter:
                 for item in self.ifAttributes[key].keys():
                     print('\t' + item + ': ' + self.ifAttributes[key][item])
             else:
-                print(key + ': ' +str(self.ifAttributes[key]))
+                print(key + ': ' + str(self.ifAttributes[key]))
         print('============')
 
         # Set up the network adapter.
