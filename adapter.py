@@ -11,8 +11,8 @@ class NetworkAdapter:
         try:
             socket.inet_aton(ip)
         except socket.error:
-            return 0
-        return 1
+            return False
+        return True
 
     # Set the inet option of an interface.
     def setName(self, n):
@@ -28,35 +28,35 @@ class NetworkAdapter:
 
     # Set the ipaddress of an interface.
     def setAddress(self, a):
-        if self.validateIP(a) == 1:
+        if self.validateIP(a) is True:
             self.ifAttributes['address'] = a
         else:
             pass
 
     # Set the netmask of an interface.
     def setNetmask(self, m):
-        if self.validateIP(m) == 1:
+        if self.validateIP(m) is True:
             self.ifAttributes['netmask'] = m
         else:
             pass
 
     # Set the default gateway of an interface.
     def setGateway(self, g):
-        if self.validateIP(g) == 1:
+        if self.validateIP(g) is True:
             self.ifAttributes['gateway'] = g
         else:
             pass
 
     # Set the broadcast address of an interface.
     def setBroadcast(self, b):
-        if self.validateIP(b) == 1:
+        if self.validateIP(b) is True:
             self.ifAttributes['broadcast'] = b
         else:
             pass
 
     # Set the network identifier of an interface.
     def setNetwork(self, w):
-        if self.validateIP(w) == 1:
+        if self.validateIP(w) is True:
             self.ifAttributes['network'] = w
         else:
             pass

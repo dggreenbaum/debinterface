@@ -7,8 +7,8 @@ from adapter import NetworkAdapter
 
 
 class InterfacesReader:
+    ''' Short lived class to read interfaces file '''
 
-    # Set up the interfaces object.
     def __init__(self):
         # Initialize a place to store created networkAdapter objects.
         self._adapters = []
@@ -21,15 +21,21 @@ class InterfacesReader:
         # This is the index of the adapters collection.
         self._context = -1
 
-    # Read /etc/network/interfaces.
-    # Return an array of networkAdapter instances.
+    @property
+    def adapters(self):
+        return self._adapters
+
     def parse_interfaces(self):
+        ''' Read /etc/network/interfaces.
+            Return an array of networkAdapter instances.
+        '''
         self._read_lines()
 
         for entry in self._auto_list:
             for adapter in self._adapters:
                 if adapter.export()['name'] == entry:
                     adapter.setAuto(True)
+
         for entry in self._hotplug_list:
             for adapter in self._adapters:
                 if adapter.export()['name'] == entry:
@@ -57,7 +63,6 @@ class InterfacesReader:
                     self._read_hotplug(line)
 
     def _parse_iface(self, line):
-        # Parse the iface clause
         if line.startswith('iface'):
             sline = line.split()
             # Update the self._context when an iface clause is encountered.
@@ -68,7 +73,6 @@ class InterfacesReader:
                 self._adapters[self._context].setInet(True)
 
     def _parse_details(self, line):
-        # Parse the detail clauses.
         if line[0].isspace() is True:
             sline = line.split()
             if sline[0] == 'address':
@@ -99,7 +103,7 @@ class InterfacesReader:
                     self._adapters[self._context].appendPostDown(cmd)
 
     def _read_auto(self, line):
-        # Identify which adapters are flagged with auto and allow-hotplug.
+        ''' Identify which adapters are flagged auto. '''
         if line.startswith('auto'):
             sline = line.split()
             for word in sline:
@@ -109,6 +113,7 @@ class InterfacesReader:
                     self._auto_list.append(word)
 
     def _read_hotplug(self, line):
+        ''' Identify which adapters are flagged allow-hotplug. '''
         if line.startswith('allow-hotplug'):
             sline = line.split()
             for word in sline:
@@ -116,4 +121,3 @@ class InterfacesReader:
                     pass
                 else:
                     self._hotplug_list.append(word)
-                    # Set the auto and allow-hotplug options for each adapter.

@@ -2,5 +2,5 @@
 
 # Define file locations and other constants in a centralized location.
 
-INTERFACES = '/etc/network/interfaces'
+INTERFACES = '/tmp/interfaces' #'/etc/network/interfaces'
 BACKUP = '/etc/network/interfaces.old'
