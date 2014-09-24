@@ -39,7 +39,7 @@ class InterfacesWriter:
         self.backup_interfaces()
 
         # Prepare to write the new interfaces file.
-        with open(self._interfaces_path, "a") as interfaces:
+        with open(self._interfaces_path, "w") as interfaces:
             # Loop through the provided networkAdaprers and write the new file.
             for adapter in self._adapters:
                 # Get dict of details about the adapter.
