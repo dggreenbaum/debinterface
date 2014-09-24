@@ -1,13 +1,14 @@
 # A class representing the contents of /etc/network/interfaces
 
-import constants
 from adapter import NetworkAdapter
 
 
 class InterfacesReader:
     ''' Short lived class to read interfaces file '''
 
-    def __init__(self):
+    def __init__(self, interfaces_path):
+        self._interfaces_path = interfaces_path
+
         # Initialize a place to store created networkAdapter objects.
         self._adapters = []
 
@@ -43,7 +44,7 @@ class InterfacesReader:
 
     def _read_lines(self):
         # Open up the interfaces file. Read only.
-        with open(constants.INTERFACES, "r") as interfaces:
+        with open(self._interfaces_path, "r") as interfaces:
             # Loop through the interfaces file.
             for line in interfaces:
                 # Identify the clauses by analyzing the first word of each line.
