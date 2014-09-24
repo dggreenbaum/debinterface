@@ -1,6 +1,5 @@
 # Write interface
 from string import Template
-import constants
 import tools
 
 
@@ -17,8 +16,10 @@ class InterfacesWriter:
     _prepFields = ['pre-up', 'up', 'down', 'post-down']
     _bridgeFields = ['ports', 'fd', 'hello', 'maxage', 'stp']
 
-    def __init__(self, adapters=[]):
+    def __init__(self, adapters, interfaces_path, backup_path):
         self._adapters = adapters
+        self._interfaces_path = interfaces_path
+        self._backup_path = backup_path
 
     @property
     def adapters(self):
@@ -31,14 +32,14 @@ class InterfacesWriter:
     def backup_interfaces(self):
         ''' return True/False, command output '''
 
-        return tools.safe_subprocess(["mv", constants.INTERFACES, constants.BACKUP])
+        return tools.safe_subprocess(["mv", self._interfaces_path, self._backup_path])
 
     def write_interfaces(self):
         # Back up the old interfaces file.
         self.backup_interfaces()
 
         # Prepare to write the new interfaces file.
-        with open(constants.INTERFACES, "a") as interfaces:
+        with open(self._interfaces_path, "a") as interfaces:
             # Loop through the provided networkAdaprers and write the new file.
             for adapter in self._adapters:
                 # Get dict of details about the adapter.
