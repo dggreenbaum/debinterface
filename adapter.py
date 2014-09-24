@@ -1,77 +1,83 @@
 import socket
 
 
-# A representation a network adapter.
 class NetworkAdapter:
-    #Validate an IP Address
-    # Will return 0 on fail, 1 on success.
-    # Works for subnet masks too.
-    def validateIP(self, ip):
-        try:
-            socket.inet_aton(ip)
-        except socket.error:
-            return False
-        return True
+    ''' A representation a network adapter. '''
 
-    # Set the inet option of an interface.
+    def validateIP(self, ip):
+        '''
+            Validate an IP Address
+            Raise socket.error on invalid IP
+            Works for subnet masks too.
+        '''
+        socket.inet_aton(ip)
+
     def setName(self, n):
+        ''' Set the inet option of an interface. '''
         self.ifAttributes['name'] = n
 
-    # Set the inet option of an interface.
     def setInet(self, i):
+        ''' Set the inet option of an interface. '''
         self.ifAttributes['inet'] = i
 
-    # Set the address source for an interface.
     def setAddressSource(self, s):
+        ''' Set the address source for an interface. '''
         self.ifAttributes['source'] = s
 
-    # Set the ipaddress of an interface.
     def setAddress(self, a):
-        if self.validateIP(a) is True:
+        ''' Set the ipaddress of an interface. '''
+        try:
+            self.validateIP(a)
             self.ifAttributes['address'] = a
-        else:
+        except socket.error:
             pass
 
-    # Set the netmask of an interface.
     def setNetmask(self, m):
-        if self.validateIP(m) is True:
+        ''' Set the netmask of an interface. '''
+        try:
+            self.validateIP(m)
             self.ifAttributes['netmask'] = m
-        else:
+        except socket.error:
             pass
 
-    # Set the default gateway of an interface.
     def setGateway(self, g):
-        if self.validateIP(g) is True:
+        ''' Set the default gateway of an interface. '''
+        try:
+            self.validateIP(g)
             self.ifAttributes['gateway'] = g
-        else:
+        except socket.error:
             pass
 
-    # Set the broadcast address of an interface.
     def setBroadcast(self, b):
-        if self.validateIP(b) is True:
+        ''' Set the broadcast address of an interface. '''
+        try:
+            self.validateIP(b)
             self.ifAttributes['broadcast'] = b
-        else:
+        except socket.error:
             pass
 
-    # Set the network identifier of an interface.
     def setNetwork(self, w):
-        if self.validateIP(w) is True:
+        ''' Set the network identifier of an interface.'''
+        try:
+            self.validateIP(w)
             self.ifAttributes['network'] = w
-        else:
+        except socket.error:
             pass
 
-    # Set the option to autostart the interface.
     def setAuto(self, t):
+        ''' Set the option to autostart the interface. '''
         self.ifAttributes['auto'] = t
 
-    # Set the option to allow hotplug on the interface.
     def setHotplug(self, h):
+        ''' Set the option to allow hotplug on the interface. '''
         self.ifAttributes['hotplug'] = h
 
-    # Set or append the bridge options of an interface.
-    # This should be a dictionary mapping option names and values.
-    # In the interfaces file, options will have a 'bridge_' prefix.
     def setBropts(self, opts):
+        '''
+            Set or append the bridge options of an interface.
+            This should be a dictionary mapping option names and values.
+            In the interfaces file, options will have a 'bridge_' prefix.
+        '''
         self.ifAttributes['bridge-opts'] = opts
 
     def replaceBropt(self, key, value):
@@ -80,44 +86,52 @@ class NetworkAdapter:
     def appendBropts(self, key, value):
         self.ifAttributes['bridge-opts'][key] = self.ifAttributes['bridge-opts'][key] + value
 
-    # Set and add to the up commands for an interface.
-    # Takes a LIST of shell commands.
     def setUp(self, up):
+        '''
+            Set and add to the up commands for an interface.
+            Takes a LIST of shell commands.
+        '''
         self.ifAttributes['up'] = up
 
     def appendUp(self, cmd):
         self.ifAttributes['up'].append(cmd)
 
-    # Set and add to the down commands for an interface.
-    # Takes a LIST of shell commands.
     def setDown(self, down):
+        '''
+            Set and add to the down commands for an interface.
+            Takes a LIST of shell commands.
+        '''
         self.ifAttributes['down'] = down
 
     def appendDown(self, cmd):
         self.ifAttributes['down'].append(cmd)
 
-    # Set and add to the pre-up commands for an interface.
-    # Takes a LIST of shell commands.
     def setPreUp(self, pre):
+        '''
+            Set and add to the pre-up commands for an interface.
+            Takes a LIST of shell commands.
+        '''
         self.ifAttributes['pre-up'] = pre
 
     def appendPreUp(self, cmd):
         self.ifAttributes['pre-up'].append(cmd)
 
-    # Set and add to the post-down commands for an interface.
-    # Takes a LIST of shell commands.
     def setPostDown(self, post):
+        '''
+            Set and add to the post-down commands for an interface.
+            Takes a LIST of shell commands.
+        '''
         self.ifAttributes['post-down'] = post
 
     def appendPostDown(self, cmd):
         self.ifAttributes['post-down'].append(cmd)
 
-    # Return the ifAttributes data structure.
     def export(self):
+        ''' Return the ifAttributes data structure. '''
         return self.ifAttributes
 
-    # Display a (kind of) human readable representation of the adapter.
     def display(self):
+        ''' Display a (kind of) human readable representation of the adapter. '''
         print('============')
         for key in self.ifAttributes.keys():
             if isinstance(self.ifAttributes[key], list):
@@ -133,7 +147,6 @@ class NetworkAdapter:
                 print(key + ': ' + str(self.ifAttributes[key]))
         print('============')
 
-        # Set up the network adapter.
     def __init__(self, options=None):
         # Initialize attribute storage structre.
         self.ifAttributes = {}
