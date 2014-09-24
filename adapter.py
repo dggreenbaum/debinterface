@@ -26,43 +26,33 @@ class NetworkAdapter:
 
     def setAddress(self, a):
         ''' Set the ipaddress of an interface. '''
-        try:
-            self.validateIP(a)
-            self.ifAttributes['address'] = a
-        except socket.error:
-            pass
+
+        self.validateIP(a)
+        self.ifAttributes['address'] = a
 
     def setNetmask(self, m):
         ''' Set the netmask of an interface. '''
-        try:
-            self.validateIP(m)
-            self.ifAttributes['netmask'] = m
-        except socket.error:
-            pass
+
+        self.validateIP(m)
+        self.ifAttributes['netmask'] = m
 
     def setGateway(self, g):
         ''' Set the default gateway of an interface. '''
-        try:
-            self.validateIP(g)
-            self.ifAttributes['gateway'] = g
-        except socket.error:
-            pass
+
+        self.validateIP(g)
+        self.ifAttributes['gateway'] = g
 
     def setBroadcast(self, b):
         ''' Set the broadcast address of an interface. '''
-        try:
-            self.validateIP(b)
-            self.ifAttributes['broadcast'] = b
-        except socket.error:
-            pass
+
+        self.validateIP(b)
+        self.ifAttributes['broadcast'] = b
 
     def setNetwork(self, w):
         ''' Set the network identifier of an interface.'''
-        try:
-            self.validateIP(w)
-            self.ifAttributes['network'] = w
-        except socket.error:
-            pass
+
+        self.validateIP(w)
+        self.ifAttributes['network'] = w
 
     def setAuto(self, t):
         ''' Set the option to autostart the interface. '''
@@ -149,6 +139,11 @@ class NetworkAdapter:
 
     def __init__(self, options=None):
         # Initialize attribute storage structre.
+        self.reset()
+        self.set_options(options)
+
+    def reset(self):
+        ''' Initialize attribute storage structre. '''
         self.ifAttributes = {}
         self.ifAttributes['bridge-opts'] = {}
         self.ifAttributes['up'] = []
@@ -156,45 +151,53 @@ class NetworkAdapter:
         self.ifAttributes['pre-up'] = []
         self.ifAttributes['post-down'] = []
 
+    def set_options(self, options):
+        ''' raise ValueError or socket.error on issue '''
+
         # Set the name of the interface.
         if isinstance(options, str):
             self.setName(options)
 
         # If a dictionary of options is provided, populate the adapter options.
         elif isinstance(options, dict):
-            for key in options.keys():
-                if key == 'name':
-                    self.setName(options[key])
-                if key == 'inet':
-                    self.setInet(options[key])
-                elif key == 'source':
-                    self.setAddressSource(options[key])
-                elif key == 'address':
-                    self.setAddress(options[key])
-                elif key == 'netmask':
-                    self.setNetmask(options[key])
-                elif key == 'gateway':
-                    self.setGateway(options[key])
-                elif key == 'broadcast':
-                    self.setBroadcast(options[key])
-                elif key == 'network':
-                    self.setNetwork(options[key])
-                elif key == 'auto':
-                    self.setAuto(options[key])
-                elif key == 'allow-hotplug':
-                    self.setHotplug(options[key])
-                elif key == 'bridgeOpts':
-                    self.setBropts(options[key])
-                elif key == 'up':
-                    self.setUp(options[key])
-                elif key == 'down':
-                    self.setDown(options[key])
-                elif key == 'pre-up':
-                    self.setPreUp(options[key])
-                elif key == 'post-down':
-                    self.setPostDown(options[key])
-                # Don't let one stupid option ruin everyone's day.
-                else:
-                    pass
+            try:
+                for key in options.keys():
+                    if key == 'name':
+                        self.setName(options[key])
+                    if key == 'inet':
+                        self.setInet(options[key])
+                    elif key == 'source':
+                        self.setAddressSource(options[key])
+                    elif key == 'address':
+                        self.setAddress(options[key])
+                    elif key == 'netmask':
+                        self.setNetmask(options[key])
+                    elif key == 'gateway':
+                        self.setGateway(options[key])
+                    elif key == 'broadcast':
+                        self.setBroadcast(options[key])
+                    elif key == 'network':
+                        self.setNetwork(options[key])
+                    elif key == 'auto':
+                        self.setAuto(options[key])
+                    elif key == 'allow-hotplug':
+                        self.setHotplug(options[key])
+                    elif key == 'bridgeOpts':
+                        self.setBropts(options[key])
+                    elif key == 'up':
+                        self.setUp(options[key])
+                    elif key == 'down':
+                        self.setDown(options[key])
+                    elif key == 'pre-up':
+                        self.setPreUp(options[key])
+                    elif key == 'post-down':
+                        self.setPostDown(options[key])
+                    # Don't let one stupid option ruin file
+                    else:
+                        self.reset()
+                        raise ValueError("Unknown option : {}".format(key))
+            except socket.error:
+                self.reset()
+                raise
         else:
-            print("No arguments given. Provide a name or options dict.")
+            raise ValueError("No arguments given. Provide a name or options dict.")
