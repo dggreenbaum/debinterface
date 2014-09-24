@@ -1,5 +1,3 @@
-#! /usr/bin/python
-
 # A class representing the contents of /etc/network/interfaces
 from interfacesWriter import InterfacesWriter
 from interfacesReader import InterfacesReader

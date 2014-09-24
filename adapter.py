@@ -1,4 +1,4 @@
-#! /usr/bin/python
+import socket
 
 
 # A representation a network adapter.
@@ -7,7 +7,6 @@ class NetworkAdapter:
     # Will return 0 on fail, 1 on success.
     # Works for subnet masks too.
     def validateIP(self, ip):
-        import socket
         try:
             socket.inet_aton(ip)
         except socket.error:

@@ -1,5 +1,3 @@
-#! /usr/bin/python
-
 # Write interface
 from string import Template
 import constants

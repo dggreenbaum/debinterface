@@ -1,5 +1,3 @@
-#! /usr/bin/python
-
 # A class representing the contents of /etc/network/interfaces
 
 import constants
