@@ -19,12 +19,16 @@ class NetworkAdapter:
     }
 
     def validateAll(self):
-        ''' Not thorough validations... and quick coded '''
+        ''' Not thorough validations... and quick coded. Raise ValueError '''
 
-        for k, v in self._valid:
-            self.validateOne(k, v, self.ifAttributes[k])
+        for k, v in self._valid.iteritems():
+            val = None
+            if k in self.ifAttributes:
+                val = self.ifAttributes[k]
+            self.validateOne(k, v, val)
 
     def validateOne(self, opt, validations, val):
+        ''' Not thorough validations... and quick coded. Raise ValueError '''
         if not validations:
             return
         if not val:
