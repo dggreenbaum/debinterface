@@ -38,21 +38,35 @@ class InterfacesWriter:
         # Back up the old interfaces file.
         self.backup_interfaces()
 
-        # Prepare to write the new interfaces file.
-        with open(self._interfaces_path, "w") as interfaces:
-            # Loop through the provided networkAdaprers and write the new file.
-            for adapter in self._adapters:
-                # Get dict of details about the adapter.
-                ifAttributes = adapter.export()
+        try:
+            # Prepare to write the new interfaces file.
+            with tools.atomic_write(self._interfaces_path) as interfaces:
+                # Loop through the provided networkAdaprers and write the new file.
+                for adapter in self._adapters:
+                    # Get dict of details about the adapter.
+                    self._write_adapter(interfaces, adapter)
+        except ValueError:
+            # Any error, let's rollback
+            tools.safe_subprocess(["mv", self._backup_path, self._interfaces_path])
+            raise
 
-                self._write_auto(interfaces, adapter, ifAttributes)
-                self._write_hotplug(interfaces, adapter, ifAttributes)
-                self._write_addrFam(interfaces, adapter, ifAttributes)
-                self._write_addressing(interfaces, adapter, ifAttributes)
-                self._write_bridge(interfaces, adapter, ifAttributes)
-                self._write_callbacks(interfaces, adapter, ifAttributes)
-                self._write_unknown(interfaces, adapter, ifAttributes)
-                interfaces.write("\n")
+    def _write_adapter(self, interfaces, adapter):
+        try:
+            adapter.validateAll()
+        except ValueError as e:
+            print(e.message)
+            raise
+
+        ifAttributes = adapter.export()
+
+        self._write_auto(interfaces, adapter, ifAttributes)
+        self._write_hotplug(interfaces, adapter, ifAttributes)
+        self._write_addrFam(interfaces, adapter, ifAttributes)
+        self._write_addressing(interfaces, adapter, ifAttributes)
+        self._write_bridge(interfaces, adapter, ifAttributes)
+        self._write_callbacks(interfaces, adapter, ifAttributes)
+        self._write_unknown(interfaces, adapter, ifAttributes)
+        interfaces.write("\n")
 
     def _write_auto(self, interfaces, adapter, ifAttributes):
         ''' Write if applicable '''
@@ -116,9 +130,9 @@ class InterfacesWriter:
 
     def _write_unknown(self, interfaces, adapter, ifAttributes):
         ''' Write unknowns options '''
-
         try:
             for k, v in ifAttributes['unknown'].iteritems():
-                interfaces.write("\t\t{} {}\n".format(str(k), str(v)))
+                d = dict(varient=k, value=str(v))
+                interfaces.write(self._cmd.substitute(d))
         except (KeyError, ValueError):
             pass
