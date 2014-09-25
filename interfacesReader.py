@@ -101,7 +101,6 @@ class InterfacesReader:
                     self._adapters[self._context].appendPostDown(cmd)
             else:
                 # store as if so as not to loose it
-                print("{} : key: {}, val: {}".format(self._context, sline[0], sline[1]))
                 self._adapters[self._context].setUnknown(sline[0], sline[1])
 
     def _read_auto(self, line):
