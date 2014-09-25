@@ -44,7 +44,10 @@ class Interfaces:
         ).write_interfaces()
 
     def addAdapter(self, options, index=None):
-        ''' Insert a networkAdapter before the given index or at the end of the list. '''
+        '''
+            Insert a networkAdapter before the given index or at the end of the list.
+            options should be a string (name) or a dict
+        '''
         if index is None:
             self._adapters.insert(index, NetworkAdapter(options))
         else:

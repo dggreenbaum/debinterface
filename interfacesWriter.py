@@ -9,7 +9,7 @@ class InterfacesWriter:
     # Define templetes for blocks used in /etc/network/interfaces.
     _auto = Template('auto $name\n')
     _hotplug = Template('allow-hotplug $name\n')
-    _iface = Template('iface $name $inet $source\n')
+    _iface = Template('iface $name $addrFam $source\n')
     _cmd = Template('\t$varient $value\n')
 
     _addressFields = ['address', 'network', 'netmask', 'broadcast', 'gateway']
@@ -47,10 +47,12 @@ class InterfacesWriter:
 
                 self._write_auto(interfaces, adapter, ifAttributes)
                 self._write_hotplug(interfaces, adapter, ifAttributes)
-                self._write_inet(interfaces, adapter, ifAttributes)
+                self._write_addrFam(interfaces, adapter, ifAttributes)
                 self._write_addressing(interfaces, adapter, ifAttributes)
                 self._write_bridge(interfaces, adapter, ifAttributes)
                 self._write_callbacks(interfaces, adapter, ifAttributes)
+                self._write_unknown(interfaces, adapter, ifAttributes)
+                interfaces.write("\n")
 
     def _write_auto(self, interfaces, adapter, ifAttributes):
         ''' Write if applicable '''
@@ -70,19 +72,14 @@ class InterfacesWriter:
         except KeyError:
             pass
 
-    def _write_inet(self, interfaces, adapter, ifAttributes):
+    def _write_addrFam(self, interfaces, adapter, ifAttributes):
         ''' Construct and write the iface declaration.
-            The inet clause needs a little more processing.
+            The addrFam clause needs a little more processing.
         '''
-        if ifAttributes['inet'] is True:
-            inet_val = 'inet'
-        else:
-            inet_val = ''
-
         # Write the source clause.
         # Will not error if omitted. Maybe not the best plan.
         try:
-            d = dict(name=ifAttributes['name'], inet=inet_val, source=ifAttributes['source'])
+            d = dict(name=ifAttributes['name'], addrFam=ifAttributes['addrFam'], source=ifAttributes['source'])
             interfaces.write(self._iface.substitute(d))
         except KeyError:
             pass
@@ -116,3 +113,12 @@ class InterfacesWriter:
                 # Keep going if a field isn't provided.
                 except KeyError:
                     pass
+
+    def _write_unknown(self, interfaces, adapter, ifAttributes):
+        ''' Write unknowns options '''
+
+        try:
+            for k, v in ifAttributes['unknown'].iteritems():
+                interfaces.write("\t\t{} {}\n".format(str(k), str(v)))
+        except (KeyError, ValueError):
+            pass

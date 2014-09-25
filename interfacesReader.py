@@ -68,38 +68,41 @@ class InterfacesReader:
             self._context += 1
             self._adapters.append(NetworkAdapter(sline[1]))
             self._adapters[self._context].setAddressSource(sline[-1])
-            if sline[2] == 'inet':
-                self._adapters[self._context].setInet(True)
+            self._adapters[self._context].setAddrFam(sline[2])
 
     def _parse_details(self, line):
         if line[0].isspace() is True:
             sline = line.split()
             if sline[0] == 'address':
                 self._adapters[self._context].setAddress(sline[1])
-            if sline[0] == 'netmask':
+            elif sline[0] == 'netmask':
                 self._adapters[self._context].setNetmask(sline[1])
-            if sline[0] == 'gateway':
+            elif sline[0] == 'gateway':
                 self._adapters[self._context].setGateway(sline[1])
-            if sline[0] == 'broadcast':
+            elif sline[0] == 'broadcast':
                 self._adapters[self._context].setBroadcast(sline[1])
-            if sline[0] == 'network':
+            elif sline[0] == 'network':
                 self._adapters[self._context].setNetwork(sline[1])
-            if sline[0].startswith('bridge') is True:
+            elif sline[0].startswith('bridge') is True:
                 opt = sline[0].split('_')
                 sline.pop(0)
                 ifs = " ".join(sline)
                 self._adapters[self._context].replaceBropt(opt[1], ifs)
-            if sline[0] == 'up' or sline[0] == 'down' or sline[0] == 'pre-up' or sline[0] == 'post-down':
+            elif sline[0] == 'up' or sline[0] == 'down' or sline[0] == 'pre-up' or sline[0] == 'post-down':
                 ud = sline.pop(0)
                 cmd = ' '.join(sline)
                 if ud == 'up':
                     self._adapters[self._context].appendUp(cmd)
-                if ud == 'down':
+                elif ud == 'down':
                     self._adapters[self._context].appendDown(cmd)
-                if ud == 'pre-up':
+                elif ud == 'pre-up':
                     self._adapters[self._context].appendPreUp(cmd)
-                if ud == 'post-down':
+                elif ud == 'post-down':
                     self._adapters[self._context].appendPostDown(cmd)
+            else:
+                # store as if so as not to loose it
+                print("{} : key: {}, val: {}".format(self._context, sline[0], sline[1]))
+                self._adapters[self._context].setUnknown(sline[0], sline[1])
 
     def _read_auto(self, line):
         ''' Identify which adapters are flagged auto. '''
