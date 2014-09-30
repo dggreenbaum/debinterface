@@ -2,7 +2,7 @@
 from interfacesWriter import InterfacesWriter
 from interfacesReader import InterfacesReader
 from adapter import NetworkAdapter
-import tools
+import toolutils
 import defaults
 
 
@@ -43,26 +43,41 @@ class Interfaces:
             self._backup_path
         ).write_interfaces()
 
+    def getAdapter(self, name):
+        ''' Find adapter by interface name '''
+        return next((x for x in self._adapters if x._ifAttributes['name'] == name), None)
+
     def addAdapter(self, options, index=None):
         '''
             Insert a networkAdapter before the given index or at the end of the list.
             options should be a string (name) or a dict
         '''
+        adapter = NetworkAdapter(options)
+        adapter.validateAll()
+
         if index is None:
-            self._adapters.insert(index, NetworkAdapter(options))
+            self._adapters.insert(index, adapter)
         else:
-            self._adapters.append(NetworkAdapter(options))
+            self._adapters.append(adapter)
+        return adapter
 
     def removeAdapter(self, index):
         ''' Remove the adapter at the given index. '''
         self._adapters.pop(index)
 
-    def controlNetworkService(self, action):
-        ''' return True/False, command output '''
+    def removeAdapterByName(self, name):
+        ''' Remove the adapter with the given name. '''
+        self._adapters = [x for x in self._adapters if x._ifAttributes['name'] != name]
 
-        if action not in ["start", "stop", "restart"]:
-            return False, "Invalid action"
-        return tools.safe_subprocess(["/etc/init.d/networking", action])
+    def upAdapter(self, if_name):
+        ''' return True/False, command output. Use ifconfig. '''
+
+        return toolutils.safe_subprocess(["ifconfig", if_name, 'up'])
+
+    def downAdapter(self, if_name):
+        ''' return True/False, command output. Use ifdown. '''
+
+        return toolutils.safe_subprocess(["ifconfig", if_name, 'down'])
 
     def _set_paths(self, interfaces_path, backup_path):
         ''' either use user input or defaults '''

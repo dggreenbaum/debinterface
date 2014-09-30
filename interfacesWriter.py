@@ -1,6 +1,6 @@
 # Write interface
 from string import Template
-import tools
+import toolutils
 
 
 class InterfacesWriter:
@@ -16,7 +16,8 @@ class InterfacesWriter:
     _prepFields = ['pre-up', 'up', 'down', 'post-down']
     _bridgeFields = ['ports', 'fd', 'hello', 'maxage', 'stp']
 
-    def __init__(self, adapters, interfaces_path, backup_path):
+    def __init__(self, adapters, interfaces_path, backup_path=None):
+        ''' if backup_path is None => no backup '''
         self._adapters = adapters
         self._interfaces_path = interfaces_path
         self._backup_path = backup_path
@@ -29,25 +30,20 @@ class InterfacesWriter:
     def adapters(self, value):
         self._adapters = value
 
-    def backup_interfaces(self):
-        ''' return True/False, command output '''
-
-        return tools.safe_subprocess(["mv", self._interfaces_path, self._backup_path])
-
     def write_interfaces(self):
         # Back up the old interfaces file.
-        self.backup_interfaces()
+        self._backup_interfaces()
 
         try:
             # Prepare to write the new interfaces file.
-            with tools.atomic_write(self._interfaces_path) as interfaces:
+            with toolutils.atomic_write(self._interfaces_path) as interfaces:
                 # Loop through the provided networkAdaprers and write the new file.
                 for adapter in self._adapters:
                     # Get dict of details about the adapter.
                     self._write_adapter(interfaces, adapter)
-        except ValueError:
-            # Any error, let's rollback
-            tools.safe_subprocess(["mv", self._backup_path, self._interfaces_path])
+        except:
+            # Any error, let's roll back
+            self._restore_interfaces()
             raise
 
     def _write_adapter(self, interfaces, adapter):
@@ -71,7 +67,7 @@ class InterfacesWriter:
     def _write_auto(self, interfaces, adapter, ifAttributes):
         ''' Write if applicable '''
         try:
-            if adapter.ifAttributes['auto'] is True:
+            if adapter._ifAttributes['auto'] is True:
                 d = dict(name=ifAttributes['name'])
                 interfaces.write(self._auto.substitute(d))
         except KeyError:
@@ -81,7 +77,7 @@ class InterfacesWriter:
         ''' Write if applicable '''
         try:
             if ifAttributes['hotplug'] is True:
-                d = dict(name=adapter.ifAttributes['name'])
+                d = dict(name=ifAttributes['name'])
                 interfaces.write(self._hotplug.substitute(d))
         except KeyError:
             pass
@@ -101,8 +97,9 @@ class InterfacesWriter:
     def _write_addressing(self, interfaces, adapter, ifAttributes):
         for field in self._addressFields:
             try:
-                d = dict(varient=field, value=ifAttributes[field])
-                interfaces.write(self._cmd.substitute(d))
+                if ifAttributes[field] and ifAttributes[field] != 'None':
+                    d = dict(varient=field, value=ifAttributes[field])
+                    interfaces.write(self._cmd.substitute(d))
             # Keep going if a field isn't provided.
             except KeyError:
                 pass
@@ -136,3 +133,15 @@ class InterfacesWriter:
                 interfaces.write(self._cmd.substitute(d))
         except (KeyError, ValueError):
             pass
+
+    def _backup_interfaces(self):
+        ''' return True/False, command output '''
+
+        if self._backup_path:
+            return toolutils.safe_subprocess(["cp", self._interfaces_path, self._backup_path])
+
+    def _restore_interfaces(self):
+        ''' return True/False, command output '''
+
+        if self._backup_path:
+            return toolutils.safe_subprocess(["cp", self._backup_path, self._interfaces_path])

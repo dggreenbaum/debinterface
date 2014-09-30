@@ -1,4 +1,5 @@
 import socket
+import toolutils
 
 
 class NetworkAdapter:
@@ -15,7 +16,8 @@ class NetworkAdapter:
         'gateway': {'type': 'IP'},
         'bridge-opts': {'type': dict},
         'addrFam': {'in': ['inet', 'inet6', 'ipx']},
-        'source': {'in': ['dhcp', 'static', 'loopback', 'manual', 'bootp', 'ppp', 'wvdial', 'dynamic', 'ipv4ll', 'v4tunnel']}
+        'source': {'in': ['dhcp', 'static', 'loopback', 'manual', 'bootp', 'ppp', 'wvdial', 'dynamic', 'ipv4ll', 'v4tunnel']},
+        'hostapd': {}
     }
 
     def validateAll(self):
@@ -23,15 +25,15 @@ class NetworkAdapter:
 
         for k, v in self._valid.iteritems():
             val = None
-            if k in self.ifAttributes:
-                val = self.ifAttributes[k]
+            if k in self._ifAttributes:
+                val = self._ifAttributes[k]
             self.validateOne(k, v, val)
 
     def validateOne(self, opt, validations, val):
         ''' Not thorough validations... and quick coded. Raise ValueError '''
-        if not validations:
+        if validations is None:
             return
-        if not val:
+        if val is None:
             if 'required' in validations and validations['required'] is True:
                 raise ValueError("{} is a required option".format(opt))
             else:
@@ -42,7 +44,7 @@ class NetworkAdapter:
                 try:
                     self.validateIP(val)
                 except socket.error:
-                    raise ValueError("{} should be a valid IP".format(opt))
+                    raise ValueError("{} should be a valid IP (got : {})".format(opt, val))
             else:
                 if not isinstance(val, validations['type']):
                     raise ValueError("{} should be {}".format(opt, str(validations['type'])))
@@ -61,61 +63,67 @@ class NetworkAdapter:
     def setName(self, n):
         ''' Set the name option of an interface. '''
         self.validateOne('name', self._valid['name'], n)
-        self.ifAttributes['name'] = str(n)
+        self._ifAttributes['name'] = str(n)
 
     def setAddrFam(self, i):
         ''' Set the address family option of an interface. '''
 
         self.validateOne('addrFam', self._valid['addrFam'], i)
-        self.ifAttributes['addrFam'] = i
+        self._ifAttributes['addrFam'] = i
 
     def setAddressSource(self, s):
         ''' Set the address source for an interface. (DHCP/static, etc) Called method normally'''
 
         self.validateOne('source', self._valid['source'], s)
-        self.ifAttributes['source'] = s
+        self._ifAttributes['source'] = s
 
     def setAddress(self, a):
         ''' Set the ipaddress of an interface. '''
 
         self.validateOne('address', self._valid['address'], a)
-        self.ifAttributes['address'] = a
+        self._ifAttributes['address'] = a
 
     def setNetmask(self, m):
         ''' Set the netmask of an interface. '''
 
         self.validateOne('netmask', self._valid['netmask'], m)
-        self.ifAttributes['netmask'] = m
+        self._ifAttributes['netmask'] = m
 
     def setGateway(self, g):
         ''' Set the default gateway of an interface. '''
 
         self.validateOne('gateway', self._valid['gateway'], g)
-        self.ifAttributes['gateway'] = g
+        self._ifAttributes['gateway'] = g
 
     def setBroadcast(self, b):
         ''' Set the broadcast address of an interface. '''
 
         self.validateOne('broadcast', self._valid['broadcast'], b)
-        self.ifAttributes['broadcast'] = b
+        self._ifAttributes['broadcast'] = b
 
     def setNetwork(self, w):
         ''' Set the network identifier of an interface.'''
 
         self.validateOne('network', self._valid['network'], w)
-        self.ifAttributes['network'] = w
+        self._ifAttributes['network'] = w
 
     def setAuto(self, t):
         ''' Set the option to autostart the interface. '''
 
         self.validateOne('auto', self._valid['auto'], t)
-        self.ifAttributes['auto'] = t
+        self._ifAttributes['auto'] = t
 
     def setHotplug(self, h):
         ''' Set the option to allow hotplug on the interface. '''
 
         self.validateOne('hotplug', self._valid['hotplug'], h)
-        self.ifAttributes['hotplug'] = h
+        self._ifAttributes['hotplug'] = h
+
+    def setHostapd(self, h):
+        ''' Set the wifi conf file on the interface. '''
+
+        self.validateOne('hostapd', self._valid['hostapd'], h)
+        self._ifAttributes['hostapd'] = h
 
     def setBropts(self, opts):
         '''
@@ -125,79 +133,89 @@ class NetworkAdapter:
         '''
 
         self.validateOne('bridge-opts', self._valid['bridge-opts'], opts)
-        self.ifAttributes['bridge-opts'] = opts
+        self._ifAttributes['bridge-opts'] = opts
 
     def replaceBropt(self, key, value):
-        self.ifAttributes['bridge-opts'][key] = value
+        self._ifAttributes['bridge-opts'][key] = value
 
     def appendBropts(self, key, value):
-        self.ifAttributes['bridge-opts'][key] = self.ifAttributes['bridge-opts'][key] + value
+        self._ifAttributes['bridge-opts'][key] = self._ifAttributes['bridge-opts'][key] + value
 
     def setUp(self, up):
         '''
             Set and add to the up commands for an interface.
             Takes a LIST of shell commands.
         '''
-        self.ifAttributes['up'] = up
+        self._ifAttributes['up'] = up
 
     def appendUp(self, cmd):
-        self.ifAttributes['up'].append(cmd)
+        self._ifAttributes['up'].append(cmd)
 
     def setDown(self, down):
         '''
             Set and add to the down commands for an interface.
             Takes a LIST of shell commands.
         '''
-        self.ifAttributes['down'] = down
+        self._ifAttributes['down'] = down
 
     def appendDown(self, cmd):
-        self.ifAttributes['down'].append(cmd)
+        self._ifAttributes['down'].append(cmd)
 
     def setPreUp(self, pre):
         '''
             Set and add to the pre-up commands for an interface.
             Takes a LIST of shell commands.
         '''
-        self.ifAttributes['pre-up'] = pre
+        self._ifAttributes['pre-up'] = pre
 
     def appendPreUp(self, cmd):
-        self.ifAttributes['pre-up'].append(cmd)
+        self._ifAttributes['pre-up'].append(cmd)
 
     def setPostDown(self, post):
         '''
             Set and add to the post-down commands for an interface.
             Takes a LIST of shell commands.
         '''
-        self.ifAttributes['post-down'] = post
+        self._ifAttributes['post-down'] = post
 
     def appendPostDown(self, cmd):
-        self.ifAttributes['post-down'].append(cmd)
+        self._ifAttributes['post-down'].append(cmd)
 
     def setUnknown(self, key, val):
         ''' it's impossible to know about all available options, so storing uncommon ones as if '''
-        if not 'unknown' in self.ifAttributes:
-            self.ifAttributes['unknown'] = {}
-        self.ifAttributes['unknown'][key] = val
+        if not 'unknown' in self._ifAttributes:
+            self._ifAttributes['unknown'] = {}
+        self._ifAttributes['unknown'][key] = val
 
-    def export(self):
-        ''' Return the ifAttributes data structure. '''
-        return self.ifAttributes
+    def export(self, options_list=None):
+        ''' Return the ifAttributes data structure. You can pass a list of parameters you want '''
+
+        if options_list:
+            ret = {}
+            for k in options_list:
+                try:
+                    ret[k] = self._ifAttributes[k]
+                except:
+                    ret[k] = None
+            return ret
+        else:
+            return self._ifAttributes
 
     def display(self):
         ''' Display a (kind of) human readable representation of the adapter. '''
         print('============')
-        for key in self.ifAttributes.keys():
-            if isinstance(self.ifAttributes[key], list):
+        for key in self._ifAttributes.keys():
+            if isinstance(self._ifAttributes[key], list):
                 print(key + ': ')
-                for item in self.ifAttributes[key]:
+                for item in self._ifAttributes[key]:
                     print('\t' + item)
 
-            elif isinstance(self.ifAttributes[key], dict):
+            elif isinstance(self._ifAttributes[key], dict):
                 print(key + ': ')
-                for item in self.ifAttributes[key].keys():
-                    print('\t' + item + ': ' + self.ifAttributes[key][item])
+                for item in self._ifAttributes[key].keys():
+                    print('\t' + item + ': ' + self._ifAttributes[key][item])
             else:
-                print(key + ': ' + str(self.ifAttributes[key]))
+                print(key + ': ' + str(self._ifAttributes[key]))
         print('============')
 
     def __init__(self, options=None):
@@ -207,12 +225,12 @@ class NetworkAdapter:
 
     def reset(self):
         ''' Initialize attribute storage structre. '''
-        self.ifAttributes = {}
-        self.ifAttributes['bridge-opts'] = {}
-        self.ifAttributes['up'] = []
-        self.ifAttributes['down'] = []
-        self.ifAttributes['pre-up'] = []
-        self.ifAttributes['post-down'] = []
+        self._ifAttributes = {}
+        self._ifAttributes['bridge-opts'] = {}
+        self._ifAttributes['up'] = []
+        self._ifAttributes['down'] = []
+        self._ifAttributes['pre-up'] = []
+        self._ifAttributes['post-down'] = []
 
     def set_options(self, options):
         ''' raise ValueError or socket.error on issue '''
@@ -255,6 +273,8 @@ class NetworkAdapter:
                         self.setPreUp(options[key])
                     elif key == 'post-down':
                         self.setPostDown(options[key])
+                    elif key == 'hostapd':
+                        self.setHostapd(options[key])
                     else:
                         # Store it as if
                         self.setUnknown(key, options[key])

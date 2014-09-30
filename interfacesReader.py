@@ -8,17 +8,7 @@ class InterfacesReader:
 
     def __init__(self, interfaces_path):
         self._interfaces_path = interfaces_path
-
-        # Initialize a place to store created networkAdapter objects.
-        self._adapters = []
-
-        # Keep a list of adapters that have the auto or allow-hotplug flags set.
-        self._auto_list = []
-        self._hotplug_list = []
-
-        # Store the interface context.
-        # This is the index of the adapters collection.
-        self._context = -1
+        self._reset()
 
     @property
     def adapters(self):
@@ -26,18 +16,20 @@ class InterfacesReader:
 
     def parse_interfaces(self):
         ''' Read /etc/network/interfaces.
+            Save adapters
             Return an array of networkAdapter instances.
         '''
+        self._reset()
         self._read_lines()
 
         for entry in self._auto_list:
             for adapter in self._adapters:
-                if adapter.export()['name'] == entry:
+                if adapter._ifAttributes['name'] == entry:
                     adapter.setAuto(True)
 
         for entry in self._hotplug_list:
             for adapter in self._adapters:
-                if adapter.export()['name'] == entry:
+                if adapter._ifAttributes['name'] == entry:
                     adapter.setHotplug(True)
 
         return self._adapters
@@ -49,7 +41,7 @@ class InterfacesReader:
             for line in interfaces:
                 # Identify the clauses by analyzing the first word of each line.
                 # Go to the next line if the current line is a comment.
-                if line.startswith('#') is True:
+                if line.strip().startswith("#") is True:
                     pass
                 else:
                     self._parse_iface(line)
@@ -122,3 +114,15 @@ class InterfacesReader:
                     pass
                 else:
                     self._hotplug_list.append(word)
+
+    def _reset(self):
+        # Initialize a place to store created networkAdapter objects.
+        self._adapters = []
+
+        # Keep a list of adapters that have the auto or allow-hotplug flags set.
+        self._auto_list = []
+        self._hotplug_list = []
+
+        # Store the interface context.
+        # This is the index of the adapters collection.
+        self._context = -1
