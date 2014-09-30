@@ -109,13 +109,9 @@ class Hostapd(object):
                 if line.startswith('#') is True:
                     pass
                 else:
-                    try:
-                        param, value = line.split("=")
-                        if param and value:
-                            self.set(param, value)
-                    except:
-                        import ipdb
-                        ipdb.set_trace()
+                    param, value = line.split("=")
+                    if param and value:
+                        self.set(param, value)
 
     def write(self, path=None):
         self.validate()
