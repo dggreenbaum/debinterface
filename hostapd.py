@@ -5,10 +5,12 @@ class Hostapd(object):
     ''' basic hostapd conf file handling '''
 
     def __init__(self, path, backup_path=None):
-        ''' no backup_path -> no backup '''
         self._config = {}
         self._path = path
-        self.backup_path = backup_path
+        if not backup_path:
+            self.backup_path = path + ".bak"
+        else:
+            self.backup_path = backup_path
 
     @property
     def config(self):

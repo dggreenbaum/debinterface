@@ -7,6 +7,8 @@ import defaults
 
 
 class Interfaces:
+    _interfaces_path = '/etc/network/interfaces'
+
     def __init__(self, update_adapters=True, interfaces_path=None, backup_path=None):
         ''' By default read interface file on init '''
 
@@ -84,10 +86,8 @@ class Interfaces:
 
         if interfaces_path is not None:
             self._interfaces_path = interfaces_path
-        else:
-            self._interfaces_path = defaults.INTERFACES_PATH
 
-        if backup_path is not None:
+        if backup_path:
             self._backup_path = backup_path
         else:
-            self._backup_path = defaults.BACKUP_PATH
+            self._backup_path = self._interfaces_path + ".bak"
