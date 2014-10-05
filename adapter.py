@@ -33,7 +33,7 @@ class NetworkAdapter:
         ''' Not thorough validations... and quick coded. Raise ValueError '''
         if validations is None:
             return
-        if val is None:
+        if not val:
             if 'required' in validations and validations['required'] is True:
                 raise ValueError("{} is a required option".format(opt))
             else:

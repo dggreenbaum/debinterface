@@ -32,7 +32,7 @@ class DnsmasqRange(object):
             self._config[str(key).strip()] = value
 
     def validate(self):
-        if self._config["dhcp-range"]:
+        try:
             for r in self._config["dhcp-range"]:
                 required = ["interface", "start", "end", "lease_time"]
                 for k in required:
@@ -42,6 +42,8 @@ class DnsmasqRange(object):
                 socket.inet_aton(r["end"])
                 if r["start"] > r["end"]:
                     raise ValueError("Start IP range must be before end IP")
+        except KeyError:
+            pass  # dhcp-range is not mandatory
 
     def get_itf_range(self, if_name):
         ''' If no if, return None '''
