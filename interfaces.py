@@ -3,7 +3,7 @@ from interfacesWriter import InterfacesWriter
 from interfacesReader import InterfacesReader
 from adapter import NetworkAdapter
 import toolutils
-import defaults
+#import defaults
 
 
 class Interfaces:
