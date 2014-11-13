@@ -1,6 +1,7 @@
 # Write interface
 from string import Template
 import toolutils
+import StringIO
 
 
 class InterfacesWriter:
@@ -37,14 +38,23 @@ class InterfacesWriter:
         try:
             # Prepare to write the new interfaces file.
             with toolutils.atomic_write(self._interfaces_path) as interfaces:
-                # Loop through the provided networkAdaprers and write the new file.
-                for adapter in self._adapters:
-                    # Get dict of details about the adapter.
-                    self._write_adapter(interfaces, adapter)
+                self._write_interfaces_to_file(interfaces)
         except:
             # Any error, let's roll back
             self._restore_interfaces()
             raise
+
+    def write_interfaces_as_string(self):
+        string_file = StringIO.StringIO()
+        self._write_interfaces_to_file(string_file)
+        string_file.seek(0)
+        return string_file.read()
+
+    def _write_interfaces_to_file(self, fileObj):
+        ''' Loop through the provided networkAdaprers and write the new file. '''
+        for adapter in self._adapters:
+            # Get dict of details about the adapter.
+            self._write_adapter(fileObj, adapter)
 
     def _write_adapter(self, interfaces, adapter):
         try:

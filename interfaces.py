@@ -39,11 +39,18 @@ class Interfaces:
 
     def writeInterfaces(self):
         ''' write adapters to interfaces file '''
+        self._writer_factory().write_interfaces()
+
+    def writeInterfacesAsString(self):
+        return self._writer_factory().write_interfaces_as_string()
+
+    def _writer_factory(self):
+        ''' Create a writer object '''
         return InterfacesWriter(
             self._adapters,
             self._interfaces_path,
             self._backup_path
-        ).write_interfaces()
+        )
 
     def getAdapter(self, name):
         ''' Find adapter by interface name '''
