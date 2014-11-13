@@ -1,6 +1,7 @@
 # A class representing the contents of /etc/network/interfaces
 
 from adapter import NetworkAdapter
+import StringIO
 
 
 class InterfacesReader:
@@ -15,13 +16,29 @@ class InterfacesReader:
         return self._adapters
 
     def parse_interfaces(self):
-        ''' Read /etc/network/interfaces.
-            Save adapters
+        ''' Read /etc/network/interfaces.  '''
+        self._reset()
+
+        # Open up the interfaces file. Read only.
+        with open(self._interfaces_path, "r") as interfaces:
+            self._read_lines_from_file(interfaces)
+
+        return self._parse_interfaces_impl()
+
+    def parse_interfaces_from_string(self, data):
+        self._reset()
+
+        # Can't be used in 'with..as'
+        string_file = StringIO.StringIO(data)
+        self._read_lines_from_file(string_file)
+        string_file.close()
+
+        return self._parse_interfaces_impl()
+
+    def _parse_interfaces_impl(self):
+        ''' Save adapters
             Return an array of networkAdapter instances.
         '''
-        self._reset()
-        self._read_lines()
-
         for entry in self._auto_list:
             for adapter in self._adapters:
                 if adapter._ifAttributes['name'] == entry:
@@ -34,24 +51,22 @@ class InterfacesReader:
 
         return self._adapters
 
-    def _read_lines(self):
-        # Open up the interfaces file. Read only.
-        with open(self._interfaces_path, "r") as interfaces:
-            # Loop through the interfaces file.
-            for line in interfaces:
-                # Identify the clauses by analyzing the first word of each line.
-                # Go to the next line if the current line is a comment.
-                if line.strip().startswith("#") is True:
+    def _read_lines_from_file(self, fileObj):
+        # Loop through the interfaces file.
+        for line in fileObj:
+            # Identify the clauses by analyzing the first word of each line.
+            # Go to the next line if the current line is a comment.
+            if line.strip().startswith("#") is True:
+                pass
+            else:
+                self._parse_iface(line)
+                # Ignore blank lines.
+                if line.isspace() is True:
                     pass
                 else:
-                    self._parse_iface(line)
-                    # Ignore blank lines.
-                    if line.isspace() is True:
-                        pass
-                    else:
-                        self._parse_details(line)
-                    self._read_auto(line)
-                    self._read_hotplug(line)
+                    self._parse_details(line)
+                self._read_auto(line)
+                self._read_hotplug(line)
 
     def _parse_iface(self, line):
         if line.startswith('iface'):

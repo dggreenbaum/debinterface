@@ -37,6 +37,11 @@ class Interfaces:
         if not self._adapters:
             self._adapters = []
 
+    def updateAdaptersWithString(self, data):
+        self._adapters = InterfacesReader(None).parse_interfaces_from_string(data)
+        if not self._adapters:
+            self._adapters = []
+
     def writeInterfaces(self):
         ''' write adapters to interfaces file '''
         self._writer_factory().write_interfaces()
