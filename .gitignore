@@ -1,0 +1,6 @@
+*.pyc
+# generated in Flask
+*.pyo
+*~
+*.conf
+*.bak
