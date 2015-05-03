@@ -69,7 +69,7 @@ class Interfaces:
         adapter = NetworkAdapter(options)
         adapter.validateAll()
 
-        if index is None:
+        if index:
             self._adapters.insert(index, adapter)
         else:
             self._adapters.append(adapter)
